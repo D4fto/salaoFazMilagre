@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <select name="" id="funcionarios">
+        
+    </select>
+    <select name="" id="servicos"></select>
+<script>
+    const funcionarios = document.querySelector('#funcionarios')
+    fetch('http://localhost:8080/funcionarios', {
+        method: 'Get',
+        headers: {
+            'content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json()
+    })
+    .then(data => {
+        console.log(data); // Manipula os dados JSON recebidos do servidor
+        for (let i = 0; i < data.length; i++) {
+            const element = data[i];
+            funcionarios.insertAdjacentHTML('beforeEnd','<option value="'+i+'">'+element.nomePessoa+'</option>',)
+        }
+    })
+    .catch(error => {
+        console.error('Houve um problema com a requisição:', error);
+    });
+    const sevicos = document.querySelector('#servicos')
+    fetch('http://localhost:8080/servicos', {
+        method: 'Get',
+        headers: {
+            'content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json()
+    })
+    .then(data => {
+        console.log(data); // Manipula os dados JSON recebidos do servidor
+        for (let i = 0; i < data.length; i++) {
+            const element = data[i];
+            servicos.insertAdjacentHTML('beforeEnd','<option value="'+i+'">'+element.nomeServico+'</option>',)
+        }
+    })
+    .catch(error => {
+        console.error('Houve um problema com a requisição:', error);
+    });
+</script>
+</body>
+</html>
