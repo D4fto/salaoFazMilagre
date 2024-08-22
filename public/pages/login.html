@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p class="error"></p>
+    <form action="" id="form" name="cpf" method="post">
+        <input type="text" name="cpf" id="cpf" placeholder="cpf">
+        <input type="submit" value="continuar">
+    </form>
+    <script>
+        const form = document.getElementById('form')
+        if(sessionStorage.getItem('dados')!=null){
+            trocarPraSenha()
+        }
+        function trocarPraSenha(){
+            JSON.parse(sessionStorage.getItem('dados')).cpfPessoa
+            form.insertAdjacentHTML('beforeEnd',`<button onclick='trocarPraCpf()'>Voltar</button>`)
+            form.querySelector('input[type="text"]').value = ''
+            form.querySelector('input[type="text"]').placeholder = 'senha'
+            form.querySelector('input[type="text"]').id = 'senha'
+            form.querySelector('input[type="text"]').name = 'senha'
+            form.querySelector('input[type="text"]').type = 'password'
+            form.querySelector('input[type="submit"]').value = 'login'
+            document.querySelector('p.error').innerHTML=''
+            form.insertAdjacentHTML('afterBegin',`<p>Cpf: ${JSON.parse(sessionStorage.getItem('dados')).cpfPessoa}</p>
+            <p>Nome: ${JSON.parse(sessionStorage.getItem('dados')).nomePessoa}</p><input type="text" name='cpf'value=${JSON.parse(sessionStorage.getItem('dados')).cpfPessoa} hidden>`)
+            form.name = 'senha'
+            form.action = '/finalizarLogin'
+        }
+        function trocarPraCpf(){
+            sessionStorage.removeItem('dados')
+            form.innerHTML=`<input type="text" name="cpf" id="cpf" placeholder="cpf">
+            <input type="submit" value="continuar">`
+            document.querySelector('p.error').innerHTML=''
+            form.name = 'cpf'
+            form.action = ''
+        }
+        form.addEventListener("submit", function(event){
+            if(form.name == 'cpf'){
+                event.preventDefault()
+                const cpf = document.getElementById('cpf')
+                fetch('/confirmaCpf', {
+                method: 'Post',
+                headers: {
+                    'content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cpf : cpf.value
+                })
+                })
+                .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json()
+                })
+                .then(data => {
+                    console.log(data); // Manipula os dados JSON recebidos do servidor
+                    if(data[0].sign){
+                        sessionStorage.setItem('dados',JSON.stringify(data[0].results))
+                        console.log(JSON.parse(sessionStorage.getItem('dados')).cpfPessoa)
+                        console.log(data[0].results.cpfPessoa)
+                        trocarPraSenha()
+                        return
+                    }
+                    document.querySelector('p.error').innerHTML='Cpf não encontrado'
+                    return
+                })
+                .catch(error => {
+                    console.error('Houve um problema com a requisição:', error);
+                });
+                return
+            }
+        });
+    </script>
+</body>
+</html>

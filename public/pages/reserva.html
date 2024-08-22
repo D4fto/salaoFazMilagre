@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +12,8 @@
     <select name="" id="servicos"></select>
 <script>
     const funcionarios = document.querySelector('#funcionarios')
-    fetch('http://localhost:8080/funcionarios', {
-        method: 'Get',
+    fetch('/funcionarios', {
+        method: 'Post',
         headers: {
             'content-Type': 'application/json'
         }
@@ -28,15 +28,15 @@
         console.log(data); // Manipula os dados JSON recebidos do servidor
         for (let i = 0; i < data.length; i++) {
             const element = data[i];
-            funcionarios.insertAdjacentHTML('beforeEnd','<option value="'+i+'">'+element.nomePessoa+'</option>',)
+            funcionarios.insertAdjacentHTML('beforeEnd','<option value="'+i+'">'+element.nomePessoa+' : '+element.senhaPessoa+' : '+element.enderecoPessoa+' : '+element.cpfPessoa+'</option>',)
         }
     })
     .catch(error => {
         console.error('Houve um problema com a requisição:', error);
     });
     const sevicos = document.querySelector('#servicos')
-    fetch('http://localhost:8080/servicos', {
-        method: 'Get',
+    fetch('/servicos', {
+        method: 'Post',
         headers: {
             'content-Type': 'application/json'
         }
