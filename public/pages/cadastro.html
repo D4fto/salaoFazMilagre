@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p class="error"></p>
+    <form action="" id="form" name="cpf" method="post">
+        <input type="text" name="cpf" id="cpf" placeholder="cpf" pattern="\d{3}\.?\d{3}\.?\d{3}-?\d{2}">
+        <input type="submit" value="continuar">
+        <p>Já possui uma conta? <a href="/login">Entre!</a></p>
+    </form>
+    <script>
+        const form = document.getElementById('form')
+        function trocarPraCadastro(){
+            let cpf = document.getElementById('cpf').value
+            form.innerHTML=`
+            <p>Cpf: ${cpf}</p>
+            <input type="text" name="nome" id="nome" required placeholder="Nome completo">
+            <input type="email" name="email" id="email" required placeholder="Email">
+            <input type="password" name="password" id="password" required placeholder="Senha">
+            <input type="password" name="confirmPass" id="COnfirmPass" required placeholder="Confirmar senha">
+            <input type="submit" value="Cadastre-se">
+            <button onclick='trocarPraCpf()'>Voltar</button>
+            `
+            document.querySelector('p.error').innerHTML=''
+            form.name = 'cadastro'
+            form.action = '/finalizarCadastro'
+        }
+        function trocarPraCpf(){
+            sessionStorage.removeItem('dados')
+            form.innerHTML=`<input type="text" name="cpf" id="cpf" placeholder="cpf">
+            <input type="submit" value="continuar">
+            <p>Ainda não possui conta? <a href="/cadastro">Cadastre-se</a></p>`
+            document.querySelector('p.error').innerHTML=''
+            form.name = 'cpf'
+            form.action = ''
+        }
+        form.addEventListener("submit", function(event){
+            if(form.name == 'cpf'){
+                event.preventDefault()
+                const cpf = document.getElementById('cpf')
+                fetch('/confirmaCpf', {
+                method: 'Post',
+                headers: {
+                    'content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cpf : cpf.value
+                })
+                })
+                .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json()
+                })
+                .then(data => {
+                    console.log(data); // Manipula os dados JSON recebidos do servidor
+                    if(!data[0].sign){
+                        sessionStorage.setItem('dados',JSON.stringify(data[0].results))
+                        trocarPraCadastro()
+                        return
+                    }
+                    document.querySelector('p.error').innerHTML='Cpf já existente'
+                    return
+                })
+                .catch(error => {
+                    console.error('Houve um problema com a requisição:', error);
+                });
+                return
+            }
+        });
+        
+        function cpfMaskOnInput(event) {
+            var value = event.target.value;
+            var caret = event.target.selectionStart;
+            var previousValue = event.target.previousValue;
+
+            //    if(value.length === 13) {
+            if (value + "-" === previousValue || value + "." === previousValue) {
+                if (caret === 3 && value.substring(3, 4) !== ".") {
+                var prefix = value.substring(0, 2);
+                var suffix = value.substring(3);
+                value = prefix + suffix;
+                caret--;
+                } else if (caret === 7 && value.substring(7, 8) !== ".") {
+                var prefix = value.substring(0, 6);
+                var suffix = value.substring(7);
+                value = prefix + suffix;
+                caret--;
+                } else if (caret === 11 && value.substring(11, 12) !== "-") {
+                var prefix = value.substring(0, 10);
+                var suffix = value.substring(11);
+                value = prefix + suffix;
+                caret--;
+                }
+            }
+
+            for (var i = value.length - 1; i >= 0; i--) {
+                var char = value[i];
+                if (char >= "0" && char <= "9") {
+                continue;
+                }
+
+                var prefix = value.substring(0, i);
+                var suffix = value.substring(i + 1);
+                value = prefix + suffix;
+                if (caret > i) {
+                caret--;
+                }
+            }
+
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+
+
+            //    for (var i = value.length; i < 11; i++) {
+            //        value += "_";
+            //    }
+
+
+            if (value.length >= 3) {
+                var prefix = value.substring(0, 3);
+                var suffix = value.substring(3);
+                value = prefix + "." + suffix;
+                if (caret >= 3) {
+                caret++;
+                }
+            }
+
+            if (value.length >= 7) {
+                var prefix = value.substring(0, 7);
+                var suffix = value.substring(7);
+                value = prefix + "." + suffix;
+                if (caret >= 7) {
+                caret++;
+                }
+            }
+
+            if (value.length >= 11) {
+                var prefix = value.substring(0, 11);
+                var suffix = value.substring(11);
+                value = prefix + "-" + suffix;
+                if (caret >= 11) {
+                caret++;
+                }
+            }
+
+            event.target.value = value;
+            event.target.selectionStart = caret;
+            event.target.selectionEnd = caret;
+            event.target.previousValue = value;
+            }
+
+        function cpfMaskOnFocus(event) {
+        var textInput = event.target;
+        if (textInput.value === "") {
+            //        textInput.value = "___.___.___-__";
+        }
+        for (var i = textInput.value.length - 1; i >= 0; i--) {
+            var char = textInput.value[i];
+            if (char >= "0" && char <= "9") {
+            textInput.selectionStart = i + 1;
+            textInput.selectionEnd = i + 1;
+            return;
+            }
+        }
+        textInput.selectionStart = 0;
+        textInput.selectionEnd = 0;
+        }
+
+        function cpfMaskOnBlur(event) {
+        var textInput = event.target;
+        if (textInput.value === "___.___.___-__") {
+            //        textInput.value = "";
+        }
+        }
+
+        function cpfMask(inputName) {
+        var textInput = document.getElementById(inputName);
+        textInput.addEventListener("input", cpfMaskOnInput);
+        textInput.addEventListener("focus", cpfMaskOnFocus);
+        textInput.addEventListener("blur", cpfMaskOnBlur);
+        }
+        
+        (function () {
+            window.addEventListener("load", function () {
+                cpfMask("cpf");
+            });
+        })();
+
+    </script>
+</body>
+</html>

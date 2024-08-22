@@ -78,7 +78,7 @@ app.post('/servicos', (req,res)=>{
 app.post('/confirmaCpf', (req,res)=>{
   connection.query(
     'SELECT cpfPessoa, nomePessoa FROM pessoa WHERE cpfPessoa = ?;',
-    [req.body.cpf],
+    [req.body.cpf.replaceAll('.','').replaceAll('-','')],
     function (err, results) {
       console.log(results)
       if(results.length>0){
@@ -166,11 +166,20 @@ app.get('/login', (req,res)=>{
   if(!yesss){
     res.sendFile(__dirname+'/public/pages/login.html')
   }
-  res.redirect('/user')
+  else{
+    res.redirect('/user')
+  }
 })
 app.get('/user', authenticate, (req,res)=>{
   console.log(req.user)
   res.redirect('/user/'+req.user.cpfPessoa)
 })
-
+app.get('/cadastro', (req,res)=>{
+  if(!yesss){
+    res.sendFile(__dirname+'/public/pages/cadastro.html')
+  }
+  else{
+    res.redirect('/user')
+  }
+})
 app.listen('8080')

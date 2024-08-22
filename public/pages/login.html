@@ -10,10 +10,12 @@
     <form action="" id="form" name="cpf" method="post">
         <input type="text" name="cpf" id="cpf" placeholder="cpf">
         <input type="submit" value="continuar">
+        <p>Ainda não possui conta? <a href="/cadastro">Cadastre-se</a></p>
     </form>
     <script>
         const form = document.getElementById('form')
-        if(sessionStorage.getItem('dados')!=null){
+        if(!sessionStorage.getItem('dados')){
+            console.log(sessionStorage.getItem('dados'))
             trocarPraSenha()
         }
         function trocarPraSenha(){
@@ -34,7 +36,8 @@
         function trocarPraCpf(){
             sessionStorage.removeItem('dados')
             form.innerHTML=`<input type="text" name="cpf" id="cpf" placeholder="cpf">
-            <input type="submit" value="continuar">`
+            <input type="submit" value="continuar">
+            <p>Ainda não possui conta? <a href="/cadastro">Cadastre-se</a></p>`
             document.querySelector('p.error').innerHTML=''
             form.name = 'cpf'
             form.action = ''
