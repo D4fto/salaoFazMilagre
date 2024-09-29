@@ -14,7 +14,7 @@
     </form>
     <script>
         const form = document.getElementById('form')
-        if(!sessionStorage.getItem('dados')){
+        if(sessionStorage.getItem('dados')){
             console.log(sessionStorage.getItem('dados'))
             trocarPraSenha()
         }

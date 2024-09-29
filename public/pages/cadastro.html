@@ -71,8 +71,38 @@
                     console.error('Houve um problema com a requisição:', error);
                 });
                 return
-            }
-        });
+            }else if(form.name == 'cadastro'){
+                event.preventDefault()
+                const cpf = document.getElementById('cpf')
+                fetch('/finalizarCadastro', {
+                method: 'Post',
+                headers: {
+                    'content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cpf : cpf.value
+                })
+                })
+                .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json()
+                })
+                .then(data => {
+                    console.log(data); // Manipula os dados JSON recebidos do servidor
+                    if(!data[0].sign){
+                        sessionStorage.setItem('dados',JSON.stringify(data[0].results))
+                        trocarPraCadastro()
+                        return
+                    }
+                    document.querySelector('p.error').innerHTML='Cpf já existente'
+                    return
+                })
+                .catch(error => {
+                    console.error('Houve um problema com a requisição:', error);
+                });
+            }})
         
         function cpfMaskOnInput(event) {
             var value = event.target.value;
